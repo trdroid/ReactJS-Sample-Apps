@@ -15,7 +15,7 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$
 
 Install the following packages
 
-*gulp-connect*: to run a local web server
+*gulp-connect*: to run a local development web server
 *gulp-open*: to open a URL in a web browser 
 
 ```sh
@@ -801,7 +801,7 @@ npm WARN courses-app@1.0.0 No repository field.
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {               <------------
+  "dependencies": {      <---
     "gulp": "^3.9.1",
     "gulp-connect": "^5.0.0",
     "gulp-open": "^2.0.0"
@@ -809,29 +809,180 @@ npm WARN courses-app@1.0.0 No repository field.
 }
 ```
 
+**Creating starter directories and files**
+
 Create the following directories
 
 * src: to contain the source files
 * dist: to contain the output files
 
+Create an *index.html* file in the "src" directory
 
+*src/index.html*
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Courses App</title>
+  </head>
+  <body>
+    <h1>Welcome to Courses App!</h1>
+  </body>
+</html>
+```
 
+**Configuring the Build Process**
 
+Create the *gulpfile.js* file.
 
+Create a gulp task to bundle html files under the "src" directory and place them under the "dist" directory.
 
+*gulpfile.js*
 
+```js
+"use strict";
 
+var gulp = require('gulp');       -----   1
+    
+var config = {                    -----   2
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
 
+gulp.task('html', function() {    -----   3
+  gulp.src(config.paths.html)     -----   4
+      .pipe(gulp.dest(config.paths.dist))   -----   5
+})
 
+gulp.task('default', ['html']);     -----   6
+```
 
+1. Import the *gulp* module
 
+2. Create an object to group all the configuration details
 
+3. Create a Gulp task called "html" using *gulp.task()* method, which takes the name of the task and the function to be executed when the task is requested to be executed.
 
+4. Gather all the .html files by calling the *gulp.src()* method and passing it the glob that refers to all .html files under the "src" directory
 
+5. Pipe the gathered .html files to the *gulp.dest()* method that takes the path to the destination directory where all the .html files have to be placed
 
+6. Create a *default* task that runs by default when the *gulp* command is run in the command line from the directory that contains the *gulpfile.js* file, and make the "html" task a dependent task so it runs when the *default* task is run.
 
+![](_misc/Project%20Content.png)
 
+Run the *gulp* command
 
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[13:42:59] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[13:42:59] Starting 'html'...
+[13:42:59] Finished 'html' after 13 ms
+[13:42:59] Starting 'default'...
+[13:42:59] Finished 'default' after 14 μs
+```
+
+Notice that the file "src/index.html" has been copied to "dist/index.html"
+
+![](_misc/Project%20Content%20after%20gulp%20html.png)
+
+Create a gulp task to start a local development web server that can serve the web pages from the "dist" directory
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');      ----- 1
+
+var config = {
+  dev: {                                        ----- 2
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {               ----- 3
+  gulpConnect.server({                          ----- 4
+    root: [config.paths.dist],
+    port: config.dev.port,
+    base: config.dev.baseUrl,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());              ----- 5
+})
+
+gulp.task('default', ['html']);
+```
+
+Create a gulp task to open the URL in a web browser
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    base: config.dev.baseUrl,
+    livereload: true
+  });
+});
+
+gulp.task('open', ['connect'], function() {               ------  1
+  gulp.src('dist/index.html')                             ------  2
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));      ------  3
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());                        ------  4
+})
+
+gulp.task('default', ['html', 'open']);                   ------  5
+```
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[14:15:34] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[14:15:34] Starting 'html'...
+[14:15:34] Finished 'html' after 16 ms
+[14:15:34] Starting 'connect'...
+[14:15:34] Finished 'connect' after 81 ms
+[14:15:34] Starting 'open'...
+[14:15:34] Finished 'open' after 4.36 ms
+[14:15:34] Starting 'default'...
+[14:15:34] Finished 'default' after 2.47 μs
+[14:15:34] Server started http://localhost:8999
+[14:15:34] LiveReload started on port 35729
+[14:15:34] Opening http://localhost:8999/ using the default OS app
+```
 
 
