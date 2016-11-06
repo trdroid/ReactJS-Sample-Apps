@@ -898,6 +898,8 @@ Notice that the file "src/index.html" has been copied to "dist/index.html"
 
 Create a gulp task to start a local development web server that can serve the web pages from the "dist" directory
 
+*gulpfile.js*
+
 ```js
 "use strict";
 
@@ -930,21 +932,21 @@ gulp.task('html', function() {
 gulp.task('default', ['html', 'connect']);      ----- 5
 ```
 
-1. Import the *gulp-connect* package
+1] Import the *gulp-connect* package
 
-2. Create a nested object "dev" that contains development related configurations. 
+2] Create a nested object "dev" that contains development related configurations. 
 
-3. Define a Gulp task called "connect" and pass it a function that has to be executed when the task is run.
+3] Define a Gulp task called "connect" and pass it a function that has to be executed when the task is run.
 
-4. In the function, start the local development server by calling the *server()* method on the *gulp-connect* instance and passing it a JSON to configure the server.
+4] In the function, start the local development server by calling the *server()* method on the *gulp-connect* instance and passing it a JSON to configure the server. 
 
 *root* indicates the root path. The server can serve the files present in the root path. 
 
 *port* indicates the port that the server would be listening on to serve the clients.
 
-5. Add the "connect" task to the list of task dependencies of the "default" task. The sequence of task execution is
-    * Run the "html" task to bundle all src/.html files and save them at dist/ folder.
-    * Run the "connect" task to start the server on the localhost that listens on a specified port
+5] Add the "connect" task to the list of task dependencies of the "default" task. The sequence of task execution is
+  * Run the "html" task to bundle all src/.html files and save at dist/ folder.
+  * Run the "connect" task to start the server on the localhost that listens on a specified port
 
 Run *gulp* in the command line
 
@@ -966,6 +968,8 @@ Open a browser and open "localhost:8999" to make a request to the server for "in
 
 
 Create a Gulp task to watch for changes in .html files under the "src" files and automatically run the "html" task to re-bundle the .html files under the "src/" directory and place them in the "dist/" directory, so that the server can serve the updated .html files from the "dist/" directory.
+
+*gulpfile.js*
 
 ```js
 "use strict";
@@ -1004,9 +1008,15 @@ gulp.task('watch', function() {                       ------  1
 gulp.task('default', ['html', 'connect', 'watch']);   ------  3
 ```
 
-1. Create a Gulp task called "watch" and pass it a function that would be executed when the task is run.
+1] Create a Gulp task called "watch" and pass it a function that would be executed when the task is run.
 
-2. Call *gulp.watch()* method and pass it a glob to watch for changes in .html files under "src/" directory, and the task "html" that needs to be run whenever changes are detected.
+2] Call *gulp.watch()* method and pass it a glob to watch for changes in .html files under "src/" directory, and the task "html" that needs to be run whenever changes are detected.
+
+3] Add the "watch" task to the list of task dependencies of the "default" task. The sequence of task execution is
+  * Run the "html" task to bundle all src/.html files and save at dist/ folder.
+  * Run the "connect" task to start the server on the localhost that listens on a specified port
+  * Run the "watch" task to observe for changes in src/.html files and re-runs the "html" task on changes.
+
 
 Terminate previous *gulp* session and re-run the *gulp* command
 
