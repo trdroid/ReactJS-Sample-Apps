@@ -1,4 +1,4 @@
-### Project Creation
+# Project Creation
 
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps$ node -v
@@ -11,7 +11,7 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps$ mkdir courses-app && cd courses-a
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$
 ```
 
-**Installing Packages**
+### Installing Packages
 
 Install the following packages
 
@@ -455,24 +455,6 @@ package.json
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "gulp": "^3.9.1",
-    "gulp-connect": "^5.0.0",
-    "gulp-open": "^2.0.0"
-  }
-}
-```
-```json
-{
-  "name": "courses-app",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
   "license": "ISC"
 }
 ```
@@ -797,6 +779,8 @@ npm WARN courses-app@1.0.0 No description
 npm WARN courses-app@1.0.0 No repository field.
 ```
 
+*package.json*
+
 ```json
 {
   "name": "courses-app",
@@ -816,12 +800,14 @@ npm WARN courses-app@1.0.0 No repository field.
 }
 ```
 
-**Creating starter directories and files**
+### Creating starter directories
 
 Create the following directories
 
 * src: to contain the source files
 * dist: to contain the output files
+
+### Creating starter HTML file
 
 Create an *index.html* file in the "src" directory
 
@@ -839,7 +825,9 @@ Create an *index.html* file in the "src" directory
 </html>
 ```
 
-**Configuring the Build Process**
+![](_misc/Project%20Content.png)
+
+### Configuring the Build Process
 
 Create the *gulpfile.js* file.
 
@@ -878,8 +866,6 @@ gulp.task('default', ['html']);     -----   6
 5. Pipe the gathered .html files to the *gulp.dest()* method that takes the path to the destination directory where all the .html files have to be placed
 
 6. Create a *default* task that runs by default when the *gulp* command is run in the command line from the directory that contains the *gulpfile.js* file, and make the "html" task a dependent task so it runs when the *default* task is run.
-
-![](_misc/Project%20Content.png)
 
 Run the *gulp* command
 
@@ -1068,10 +1054,11 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [21:03:42] Finished 'html' after 5.91 ms
 ```
 
-Refresh the browser to view updated "index.html" file placed in "dist/" directory by the "html" Gulp task.
+Refresh the browser to view the updated "index.html" file placed in "dist/" directory by the "html" Gulp task.
 
 ![](_misc/Browser%20snapshot%20-%20after%20making%20changes.png)
 
+Create a new Gulp task to open the browser with the request to "http://localhost:8999/" automatically.
 
 ```js
 "use strict";
@@ -1115,6 +1102,16 @@ gulp.task('open', ['connect'], function() {                      <------- 1
 gulp.task('default', ['html', 'open', 'watch']);                 <------- 4
 ```
 
+1] Create a Gulp task called "open" and make it dependent on the "connect" task, to ensure that the server is started before making an attempt to launch the browser with the URL and sending a request to the server.
+
+2] The idea here is to open a URL in the default browser set in the current OS. A URL can be opened by calling an instance of the *gulp-open* module and passing it the URI. *gulp.src()* is used only to invoke the *pipe()* method, and the argument passed to the *gulp.src()* does not matter as long as it is valid, so the path "dist/index.html" is just a placeholder. 
+
+3] Use the *gulp-open* module's instance in the *pipe()* method and pass it the URI to be opened in the default browser. 
+
+4] As the "open" task is dependent on the "connect" task, the "connect" task can be replaced with the "open" task in the list of dependecy tasks of the *default* task.
+
+Terminate the previous *gulp* session and re-run it in the command line. Notice that the URL is opened in the browser automatically.
+
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [22:13:39] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
@@ -1129,12 +1126,12 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [22:13:39] Starting 'default'...
 [22:13:39] Finished 'default' after 4.04 μs
 [22:13:39] Server started http://localhost:8999
-[22:13:39] Opening http://localhost:8999/ using the default OS app
+[22:13:39] Opening http://localhost:8999/ using the default OS app      <---------
 ```
 
-This launches the browser with the url "http://localhost:8999/"
+This launches the browser with the url "http://localhost:8999/", without having to manually open the browser and requesting that URL. 
 
-Make the following changes to allow changes to be automatically reflected in the browser.
+Configure live-reloading to allow changes to be automatically reflected in the browser.
 
 ```js
 "use strict";
@@ -1179,4 +1176,36 @@ gulp.task('open', ['connect'], function() {
 
 gulp.task('default', ['html', 'open', 'watch']);
 ```
+
+1]  ~~ Both the lines are needed for live-reloading to work. Need to figure out how it works internally.
+
+2]  ~~
+
+Terminate and re-run the *gulp* session
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[09:32:52] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[09:32:52] Starting 'html'...
+[09:32:52] Finished 'html' after 14 ms
+[09:32:52] Starting 'connect'...
+[09:32:52] Finished 'connect' after 15 ms
+[09:32:52] Starting 'open'...
+[09:32:52] Finished 'open' after 4.69 ms
+[09:32:52] Starting 'watch'...
+[09:32:52] Finished 'watch' after 13 ms
+[09:32:52] Starting 'default'...
+[09:32:52] Finished 'default' after 2.5 μs
+[09:32:52] Server started http://localhost:8999
+[09:32:52] LiveReload started on port 35729                         <--------
+[09:32:52] Opening http://localhost:8999/ using the default OS app
+```
+
+This launches the browser with the url "http://localhost:8999/". 
+
+![](_misc/Browser%20on%20live-reloading.png)
+
+![](_misc/livereloadjs%20in%20browser.png)
+
+Any changes made to "src/.html" files causes the "watch" task to run, which triggers the "html" task, which then bundles "src/.html" files to "dist/" directory and then calls a server reload, which then causes the browser to get the updated contents of the "dist/" directory without a manual refresh.
 
