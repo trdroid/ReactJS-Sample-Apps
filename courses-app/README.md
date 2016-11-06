@@ -862,7 +862,7 @@ var config = {                    -----   2
 gulp.task('html', function() {    -----   3
   gulp.src(config.paths.html)     -----   4
       .pipe(gulp.dest(config.paths.dist))   -----   5
-})
+});
 
 gulp.task('default', ['html']);     -----   6
 ```
@@ -927,7 +927,7 @@ gulp.task('connect', function() {               ----- 3
 gulp.task('html', function() {
   gulp.src(config.paths.html)
       .pipe(gulp.dest(config.paths.dist))
-})
+});
 
 gulp.task('default', ['html', 'connect']);      ----- 5
 ```
@@ -1003,7 +1003,7 @@ gulp.task('html', function() {
 
 gulp.task('watch', function() {                       ------  1
   gulp.watch(config.paths.html, ['html']);            ------  2
-})
+});
 
 gulp.task('default', ['html', 'connect', 'watch']);   ------  3
 ```
@@ -1072,4 +1072,111 @@ Refresh the browser to view updated "index.html" file placed in "dist/" director
 
 ![](_misc/Browser%20snapshot%20-%20after%20making%20changes.png)
 
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+});
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+});
+
+gulp.task('open', ['connect'], function() {                      <------- 1
+  gulp.src('dist/index.html')                                    <------- 2
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));       <------- 3
+});
+
+gulp.task('default', ['html', 'open', 'watch']);                 <------- 4
+```
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[22:13:39] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[22:13:39] Starting 'html'...
+[22:13:39] Finished 'html' after 13 ms
+[22:13:39] Starting 'connect'...
+[22:13:39] Finished 'connect' after 15 ms
+[22:13:39] Starting 'open'...
+[22:13:39] Finished 'open' after 4.78 ms
+[22:13:39] Starting 'watch'...
+[22:13:39] Finished 'watch' after 14 ms
+[22:13:39] Starting 'default'...
+[22:13:39] Finished 'default' after 4.04 μs
+[22:13:39] Server started http://localhost:8999
+[22:13:39] Opening http://localhost:8999/ using the default OS app
+```
+
+This launches the browser with the url "http://localhost:8999/"
+
+Make the following changes to allow changes to be automatically reflected in the browser.
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true                              <------- 1
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());                <------- 2
+});
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'open', 'watch']);
+```
 
