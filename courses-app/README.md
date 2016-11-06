@@ -15,8 +15,15 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$
 
 Install the following packages
 
-*gulp-connect*: to run a local development web server
-*gulp-open*: to open a URL in a web browser 
+*gulp-connect*
+(https://www.npmjs.com/package/gulp-connect)
+
+Install *gulp-connect* to run a local development web server with LiveReload
+
+*gulp-open*
+(https://www.npmjs.com/package/gulp-open)
+
+Install *gulp-open* to open a URL in a web browser 
 
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install gulp gulp-connect gulp-open --save
@@ -855,7 +862,7 @@ var config = {                    -----   2
 gulp.task('html', function() {    -----   3
   gulp.src(config.paths.html)     -----   4
       .pipe(gulp.dest(config.paths.dist))   -----   5
-})
+});
 
 gulp.task('default', ['html']);     -----   6
 ```
@@ -891,6 +898,8 @@ Notice that the file "src/index.html" has been copied to "dist/index.html"
 
 Create a gulp task to start a local development web server that can serve the web pages from the "dist" directory
 
+*gulpfile.js*
+
 ```js
 "use strict";
 
@@ -911,22 +920,221 @@ var config = {
 gulp.task('connect', function() {               ----- 3
   gulpConnect.server({                          ----- 4
     root: [config.paths.dist],
-    port: config.dev.port,
-    base: config.dev.baseUrl,
-    livereload: true
+    port: config.dev.port
   });
 });
 
 gulp.task('html', function() {
   gulp.src(config.paths.html)
       .pipe(gulp.dest(config.paths.dist))
-      .pipe(gulpConnect.reload());              ----- 5
-})
+});
 
-gulp.task('default', ['html']);
+gulp.task('default', ['html', 'connect']);      ----- 5
 ```
 
-Create a gulp task to open the URL in a web browser
+1] Import the *gulp-connect* package
+
+2] Create a nested object "dev" that contains development related configurations. 
+
+3] Define a Gulp task called "connect" and pass it a function that has to be executed when the task is run.
+
+4] In the function, start the local development server by calling the *server()* method on the *gulp-connect* instance and passing it a JSON to configure the server. 
+
+*root* indicates the root path. The server can serve the files present in the root path. 
+
+*port* indicates the port that the server would be listening on to serve the clients.
+
+5] Add the "connect" task to the list of task dependencies of the "default" task. The sequence of task execution is
+  * Run the "html" task to bundle all src/.html files and save at dist/ folder.
+  * Run the "connect" task to start the server on the localhost that listens on a specified port
+
+Run *gulp* in the command line
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[21:00:17] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[21:00:17] Starting 'html'...
+[21:00:17] Finished 'html' after 13 ms
+[21:00:17] Starting 'connect'...
+[21:00:17] Finished 'connect' after 15 ms
+[21:00:17] Starting 'default'...
+[21:00:17] Finished 'default' after 23 μs
+[21:00:17] Server started http://localhost:8999
+```
+
+Open a browser and open "localhost:8999" to make a request to the server for "index.html". The server finds it in "dist" folder specified to it in "root" attribute, and responds to the browser request with the file "index.html".
+
+![](_misc/Browser%20snapshot.png)
+
+
+Create a Gulp task to watch for changes in .html files under the "src" files and automatically run the "html" task to re-bundle the .html files under the "src/" directory and place them in the "dist/" directory, so that the server can serve the updated .html files from the "dist/" directory.
+
+*gulpfile.js*
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+});
+
+gulp.task('watch', function() {                       ------  1
+  gulp.watch(config.paths.html, ['html']);            ------  2
+});
+
+gulp.task('default', ['html', 'connect', 'watch']);   ------  3
+```
+
+1] Create a Gulp task called "watch" and pass it a function that would be executed when the task is run.
+
+2] Call *gulp.watch()* method and pass it a glob to watch for changes in .html files under "src/" directory, and the task "html" that needs to be run whenever changes are detected.
+
+3] Add the "watch" task to the list of task dependencies of the "default" task. The sequence of task execution is
+  * Run the "html" task to bundle all src/.html files and save at dist/ folder.
+  * Run the "connect" task to start the server on the localhost that listens on a specified port
+  * Run the "watch" task to observe for changes in src/.html files and re-runs the "html" task on changes.
+
+
+Terminate previous *gulp* session and re-run the *gulp* command
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[21:02:45] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[21:02:45] Starting 'html'...
+[21:02:45] Finished 'html' after 14 ms
+[21:02:45] Starting 'connect'...
+[21:02:45] Finished 'connect' after 15 ms
+[21:02:45] Starting 'watch'...
+[21:02:45] Finished 'watch' after 16 ms
+[21:02:45] Starting 'default'...
+[21:02:45] Finished 'default' after 2.71 μs
+[21:02:45] Server started http://localhost:8999
+```
+
+Make changes to the "src/index.html" file
+
+*src/index.html*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Courses App</title>
+  </head>
+  <body>
+    <h1>Welcome to Courses App - Thank you</h1>         ----------
+  </body>
+</html>
+```
+
+On saving the changes, notice from the command line that the "html" Gulp task is run
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[21:02:45] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[21:02:45] Starting 'html'...
+[21:02:45] Finished 'html' after 14 ms
+[21:02:45] Starting 'connect'...
+[21:02:45] Finished 'connect' after 15 ms
+[21:02:45] Starting 'watch'...
+[21:02:45] Finished 'watch' after 16 ms
+[21:02:45] Starting 'default'...
+[21:02:45] Finished 'default' after 2.71 μs
+[21:02:45] Server started http://localhost:8999
+[21:03:42] Starting 'html'...                                 <-------------
+[21:03:42] Finished 'html' after 5.91 ms
+```
+
+Refresh the browser to view updated "index.html" file placed in "dist/" directory by the "html" Gulp task.
+
+![](_misc/Browser%20snapshot%20-%20after%20making%20changes.png)
+
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    dist: './dist'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+});
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+});
+
+gulp.task('open', ['connect'], function() {                      <------- 1
+  gulp.src('dist/index.html')                                    <------- 2
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));       <------- 3
+});
+
+gulp.task('default', ['html', 'open', 'watch']);                 <------- 4
+```
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[22:13:39] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[22:13:39] Starting 'html'...
+[22:13:39] Finished 'html' after 13 ms
+[22:13:39] Starting 'connect'...
+[22:13:39] Finished 'connect' after 15 ms
+[22:13:39] Starting 'open'...
+[22:13:39] Finished 'open' after 4.78 ms
+[22:13:39] Starting 'watch'...
+[22:13:39] Finished 'watch' after 14 ms
+[22:13:39] Starting 'default'...
+[22:13:39] Finished 'default' after 4.04 μs
+[22:13:39] Server started http://localhost:8999
+[22:13:39] Opening http://localhost:8999/ using the default OS app
+```
+
+This launches the browser with the url "http://localhost:8999/"
+
+Make the following changes to allow changes to be automatically reflected in the browser.
 
 ```js
 "use strict";
@@ -950,39 +1158,25 @@ gulp.task('connect', function() {
   gulpConnect.server({
     root: [config.paths.dist],
     port: config.dev.port,
-    base: config.dev.baseUrl,
-    livereload: true
+    livereload: true                              <------- 1
   });
-});
-
-gulp.task('open', ['connect'], function() {               ------  1
-  gulp.src('dist/index.html')                             ------  2
-      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));      ------  3
 });
 
 gulp.task('html', function() {
   gulp.src(config.paths.html)
       .pipe(gulp.dest(config.paths.dist))
-      .pipe(gulpConnect.reload());                        ------  4
-})
+      .pipe(gulpConnect.reload());                <------- 2
+});
 
-gulp.task('default', ['html', 'open']);                   ------  5
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'open', 'watch']);
 ```
-
-```sh
-droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
-[14:15:34] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
-[14:15:34] Starting 'html'...
-[14:15:34] Finished 'html' after 16 ms
-[14:15:34] Starting 'connect'...
-[14:15:34] Finished 'connect' after 81 ms
-[14:15:34] Starting 'open'...
-[14:15:34] Finished 'open' after 4.36 ms
-[14:15:34] Starting 'default'...
-[14:15:34] Finished 'default' after 2.47 μs
-[14:15:34] Server started http://localhost:8999
-[14:15:34] LiveReload started on port 35729
-[14:15:34] Opening http://localhost:8999/ using the default OS app
-```
-
 
