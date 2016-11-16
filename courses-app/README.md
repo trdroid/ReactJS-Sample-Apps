@@ -825,11 +825,11 @@ Create an *index.html* file in the "src" directory
 </html>
 ```
 
-![](_misc/Project%20Content.png)
-
 ### Configuring the Build Process
 
 Create the *gulpfile.js* file.
+
+![](_misc/Project%20Content.png)
 
 Create a gulp task to bundle html files under the "src" directory and place them under the "dist" directory.
 
@@ -1208,4 +1208,322 @@ This launches the browser with the url "http://localhost:8999/".
 ![](_misc/livereloadjs%20in%20browser.png)
 
 Any changes made to "src/.html" files causes the "watch" task to run, which triggers the "html" task, which then bundles "src/.html" files to "dist/" directory and then calls a server reload, which then causes the browser to get the updated contents of the "dist/" directory without a manual refresh.
+
+### Configuring *gulp* task to handle JavaScript
+
+**Install Dependencies**
+
+*Browserify* (https://www.npmjs.com/package/browserify) which uses the CommonJS pattern of modules
+
+*Reactify* (https://www.npmjs.com/package/reactify) to compile JSX of React to JavaScript
+
+*Vinyl-source-stream* (https://www.npmjs.com/package/vinyl-source-stream) to allow text streams to be used with *gulp*
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install browserify reactify vinyl-source-stream --save
+npm WARN deprecated react-tools@0.13.3: react-tools is deprecated. For more information, visit https://fb.me/react-tools-deprecated
+npm WARN prefer global react-tools@0.13.3 should be installed with -g
+courses-app@1.0.0 /home/droid/onGit/ReactJS-Sample-Apps/courses-app
+├─┬ browserify@13.1.1 
+│ ├── assert@1.3.0 
+│ ├─┬ browser-pack@6.0.1 
+│ │ ├─┬ combine-source-map@0.7.2 
+│ │ │ ├── convert-source-map@1.1.3 
+│ │ │ ├── inline-source-map@0.6.2 
+│ │ │ ├── lodash.memoize@3.0.4 
+│ │ │ └── source-map@0.5.6 
+│ │ └── umd@3.0.1 
+│ ├── browser-resolve@1.11.2 
+│ ├─┬ browserify-zlib@0.1.4 
+│ │ └── pako@0.2.9 
+│ ├─┬ buffer@4.9.1 
+│ │ ├── base64-js@1.2.0 
+│ │ ├── ieee754@1.1.8 
+│ │ └── isarray@1.0.0 
+│ ├── cached-path-relative@1.0.0 
+│ ├─┬ concat-stream@1.5.2 
+│ │ ├─┬ readable-stream@2.0.6 
+│ │ │ └── isarray@1.0.0 
+│ │ └── typedarray@0.0.6 
+│ ├─┬ console-browserify@1.1.0 
+│ │ └── date-now@0.1.4 
+│ ├── constants-browserify@1.0.0 
+│ ├─┬ crypto-browserify@3.11.0 
+│ │ ├─┬ browserify-cipher@1.0.0 
+│ │ │ ├─┬ browserify-aes@1.0.6 
+│ │ │ │ └── buffer-xor@1.0.3 
+│ │ │ ├─┬ browserify-des@1.0.0 
+│ │ │ │ └─┬ des.js@1.0.0 
+│ │ │ │   └── minimalistic-assert@1.0.0 
+│ │ │ └── evp_bytestokey@1.0.0 
+│ │ ├─┬ browserify-sign@4.0.0 
+│ │ │ ├── bn.js@4.11.6 
+│ │ │ ├── browserify-rsa@4.0.1 
+│ │ │ ├─┬ elliptic@6.3.2 
+│ │ │ │ ├── brorand@1.0.6 
+│ │ │ │ └── hash.js@1.0.3 
+│ │ │ └─┬ parse-asn1@5.0.0 
+│ │ │   └── asn1.js@4.9.0 
+│ │ ├── create-ecdh@4.0.0 
+│ │ ├─┬ create-hash@1.1.2 
+│ │ │ ├── cipher-base@1.0.3 
+│ │ │ └── ripemd160@1.0.1 
+│ │ ├── create-hmac@1.1.4 
+│ │ ├─┬ diffie-hellman@5.0.2 
+│ │ │ └── miller-rabin@4.0.0 
+│ │ ├── pbkdf2@3.0.9 
+│ │ ├── public-encrypt@4.0.0 
+│ │ └── randombytes@2.0.3 
+│ ├── defined@1.0.0 
+│ ├── deps-sort@2.0.0 
+│ ├── domain-browser@1.1.7 
+│ ├── duplexer2@0.1.4 
+│ ├── events@1.1.1 
+│ ├─┬ glob@5.0.15 
+│ │ └── path-is-absolute@1.0.1 
+│ ├─┬ has@1.0.1 
+│ │ └── function-bind@1.1.0 
+│ ├── htmlescape@1.1.1 
+│ ├── https-browserify@0.0.1 
+│ ├─┬ insert-module-globals@7.0.1 
+│ │ └─┬ lexical-scope@1.2.0 
+│ │   └─┬ astw@2.0.0 
+│ │     └── acorn@1.2.2 
+│ ├─┬ JSONStream@1.2.1 
+│ │ └── jsonparse@1.2.0 
+│ ├─┬ labeled-stream-splicer@2.0.0 
+│ │ └─┬ stream-splicer@2.0.0 
+│ │   └─┬ readable-stream@2.2.2 
+│ │     └── isarray@1.0.0 
+│ ├─┬ module-deps@4.0.8 
+│ │ ├─┬ detective@4.3.2 
+│ │ │ └── acorn@3.3.0 
+│ │ ├── duplexer2@0.1.4 
+│ │ ├─┬ readable-stream@2.2.2 
+│ │ │ └── isarray@1.0.0 
+│ │ └─┬ stream-combiner2@1.1.1 
+│ │   ├── duplexer2@0.1.4 
+│ │   └─┬ readable-stream@2.2.2 
+│ │     └── isarray@1.0.0 
+│ ├── os-browserify@0.1.2 
+│ ├─┬ parents@1.0.1 
+│ │ └── path-platform@0.11.15 
+│ ├── path-browserify@0.0.0 
+│ ├── process@0.11.9 
+│ ├── punycode@1.4.1 
+│ ├── querystring-es3@0.2.1 
+│ ├─┬ read-only-stream@2.0.0 
+│ │ └─┬ readable-stream@2.2.2 
+│ │   └── isarray@1.0.0 
+│ ├─┬ readable-stream@2.2.2 
+│ │ ├── buffer-shims@1.0.0 
+│ │ └── isarray@1.0.0 
+│ ├─┬ shasum@1.0.2 
+│ │ ├── json-stable-stringify@0.0.1 
+│ │ └── sha.js@2.4.8 
+│ ├─┬ shell-quote@1.6.1 
+│ │ ├── array-filter@0.0.1 
+│ │ ├── array-map@0.0.0 
+│ │ ├── array-reduce@0.0.0 
+│ │ └── jsonify@0.0.0 
+│ ├─┬ stream-browserify@2.0.1 
+│ │ └─┬ readable-stream@2.2.2 
+│ │   └── isarray@1.0.0 
+│ ├─┬ stream-http@2.5.0 
+│ │ ├── builtin-status-codes@2.0.0 
+│ │ ├─┬ readable-stream@2.2.2 
+│ │ │ └── isarray@1.0.0 
+│ │ └── to-arraybuffer@1.0.1 
+│ ├── subarg@1.0.0 
+│ ├─┬ syntax-error@1.1.6 
+│ │ └── acorn@2.7.0 
+│ ├── timers-browserify@1.4.2 
+│ ├── tty-browserify@0.0.0 
+│ ├─┬ url@0.11.0 
+│ │ ├── punycode@1.3.2 
+│ │ └── querystring@0.2.0 
+│ ├─┬ util@0.10.3 
+│ │ └── inherits@2.0.1 
+│ └─┬ vm-browserify@0.0.4 
+│   └── indexof@0.0.1 
+├─┬ reactify@1.1.1 
+│ └─┬ react-tools@0.13.3 
+│   ├─┬ commoner@0.10.4 
+│   │ ├─┬ commander@2.9.0 
+│   │ │ └── graceful-readlink@1.0.1 
+│   │ ├── glob@5.0.15 
+│   │ ├── private@0.1.6 
+│   │ ├── q@1.4.1 
+│   │ └─┬ recast@0.10.43 
+│   │   ├── ast-types@0.8.15 
+│   │   └── esprima-fb@15001.1001.0-dev-harmony-fb 
+│   └─┬ jstransform@10.1.0 
+│     ├── base62@0.1.1 
+│     ├── esprima-fb@13001.1001.0-dev-harmony-fb 
+│     └─┬ source-map@0.1.31 
+│       └── amdefine@1.0.1 
+└─┬ vinyl-source-stream@1.1.0 
+  ├─┬ through2@0.6.5 
+  │ └── readable-stream@1.0.34 
+  └─┬ vinyl@0.4.6 
+    └── clone@0.2.0 
+
+npm WARN courses-app@1.0.0 No repository field.
+```
+
+
+*package.json*
+
+```json
+{
+  "name": "courses-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^13.1.1",
+    "gulp": "^3.9.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-open": "^2.0.0",
+    "reactify": "^1.1.1",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
+```
+
+**Create a simple script**
+
+*src/app.js*
+
+```javascript
+var App = greet();
+
+function greet() {
+  console.log('Hello, I am the script!');
+}
+
+module.exports = App;
+```
+
+**Import Dependencies**
+
+*gulpfile.js*
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+var browserify = require('browserify');                 <-------- 1
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    js: './src/**/*.js',                                <-------- 2
+    dist: './dist',
+    appJs: './src/app.js'                               <-------- 3
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('js', function() {                            <-------- 4
+  browserify(config.paths.appJs)                        <-------- 5
+      .transform(reactify)                              <-------- 6
+      .bundle()                                         <-------- 7
+      .on('error', console.error.bind(console))         <-------- 8
+      .pipe(vinylSourceStream('bundle.js'))             <-------- 9
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))  <-------- 10
+});
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js']);                  <-------- 11
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'js', 'open', 'watch']);  <-------- 12
+```
+
+1] Import the required packages
+
+2] Add property to the config object to refer to all .js files under "src/" at any depth
+
+3] Add property to the config object to refer to the main .js file "src/app.js"
+
+4] Define a task called "js" and a function that should run when this task is called
+
+5] Call an instance of the *browserify* module and pass it the path to the main .js file "src/app.js"
+
+6] Call *transform()* method of *browserify* and pass it an instance of *reactify* to compile any JSX to JavaScript
+
+7] Call *bundle()* method of *browserify* to bundle all JavaScript files into one to save on the number of HTTP requests
+
+8] In case of any error, log them to console
+
+9] Define the name of the bundled JavaScript file
+
+10] Define the destination path for the bundled JavaScript file
+
+11] Watch for changes in the any of the .js files under "src/" at any depth and re-run the "js" task when changes occur
+
+12] Add the "js" task to the set of "default" tasks, so it is run when the command *gulp* is run on the command line
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[17:37:52] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[17:37:52] Starting 'html'...
+[17:37:52] Finished 'html' after 17 ms
+[17:37:52] Starting 'js'...
+[17:37:52] Finished 'js' after 32 ms
+[17:37:52] Starting 'connect'...
+[17:37:52] Finished 'connect' after 20 ms
+[17:37:52] Starting 'open'...
+[17:37:52] Finished 'open' after 3.05 ms
+[17:37:52] Starting 'watch'...
+[17:37:52] Finished 'watch' after 22 ms
+[17:37:52] Starting 'default'...
+[17:37:52] Finished 'default' after 3.05 μs
+[17:37:52] Server started http://localhost:8999
+[17:37:52] LiveReload started on port 35729
+[17:37:52] Opening http://localhost:8999/ using the default OS app
+```
+
+Running *gulp* launches the browser
+
+![](_misc/Browser%20screenshot%20after%20including%20script.png)
+
+The generated "dist/scripts/bundle.js" file
+
+![](_misc/bundlejs%20file%20generated.png)
 
