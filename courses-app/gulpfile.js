@@ -3,6 +3,9 @@
 var gulp = require('gulp');
 var gulpConnect = require('gulp-connect');
 var gulpOpen = require('gulp-open');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
 
 var config = {
   dev: {
@@ -11,7 +14,9 @@ var config = {
   },
   paths: {
     html: './src/*.html',
-    dist: './dist'
+    js: './src/**/*.js',
+    dist: './dist',
+    appJs: './src/app.js'
   }
 }
 
@@ -29,8 +34,18 @@ gulp.task('html', function() {
       .pipe(gulpConnect.reload());
 });
 
+gulp.task('js', function() {
+  browserify(config.paths.appJs)
+      .transform(reactify)
+      .bundle()
+      .on('error', console.error.bind(console))
+      .pipe(vinylSourceStream('bundle.js'))
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))
+});
+
 gulp.task('watch', function() {
   gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js']);
 });
 
 gulp.task('open', ['connect'], function() {
@@ -38,4 +53,4 @@ gulp.task('open', ['connect'], function() {
       .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
 });
 
-gulp.task('default', ['html', 'open', 'watch']);
+gulp.task('default', ['html', 'js', 'open', 'watch']);
