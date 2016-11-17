@@ -2015,3 +2015,241 @@ courses-app@1.0.0 /home/droid/onGit/ReactJS-Sample-Apps/courses-app
 npm WARN courses-app@1.0.0 No repository field.
 ```
 
+*package.json*
+
+```json
+{
+  "name": "courses-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "browserify": "^13.1.1",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-open": "^2.0.0",
+    "jquery": "^3.1.1",
+    "reactify": "^1.1.1",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
+```
+
+*gulpfile.js*
+
+```javascript
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
+var gulpEslint = require('gulp-eslint');
+var gulpConcat = require('gulp-concat');                              <------ 1
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    js: './src/**/*.js',
+    css: [                                                            <------ 2
+      'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+      'node_modules/bootstrap/dist/css/bootstrap.min.css'
+    ],
+    dist: './dist',
+    appJs: './src/app.js'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('js', function() {
+  browserify(config.paths.appJs)
+      .transform(reactify)
+      .bundle()
+      .on('error', console.error.bind(console))
+      .pipe(vinylSourceStream('bundle.js'))
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('css', function() {                                         <------ 3
+  gulp.src(config.paths.css)                                          <------ 4
+      .pipe(gulpConcat('bundle.css'))                                 <------ 5
+      .pipe(gulp.dest(config.paths.dist + '/css'));                   <------ 6
+})
+
+gulp.task('lint', function() {
+  return gulp.src(config.paths.js)
+      .pipe(gulpEslint('eslint.config.json'))
+      .pipe(gulpEslint.format());
+})
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js', 'lint']);
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);   <------ 7
+```
+
+*src/index.html*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Courses App</title>
+    <link rel="stylesheet" href="css/bundle.css"/>      ----- 1
+  </head>
+  <body>
+    <div class="jumbotron">                             ----- 2
+      <h1>Welcome to Courses App!</h1>
+    </div>
+    <script src="scripts/bundle.js"></script>
+  </body>
+</html>
+```
+
+*src/app.js*
+
+```javascript
+$ = jQuery = require('jquery');     <------- 1
+
+var App = greet();
+
+function greet() {
+}
+
+module.exports = App;
+```
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[10:49:26] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[10:49:26] Starting 'html'...
+[10:49:26] Finished 'html' after 13 ms
+[10:49:26] Starting 'js'...
+[10:49:26] Finished 'js' after 23 ms
+[10:49:26] Starting 'css'...
+[10:49:26] Finished 'css' after 6.49 ms
+[10:49:26] Starting 'lint'...
+[10:49:26] Starting 'connect'...
+[10:49:26] Finished 'connect' after 125 ms
+[10:49:26] Starting 'open'...
+[10:49:26] Finished 'open' after 1.43 ms
+[10:49:26] Starting 'watch'...
+[10:49:26] Finished 'watch' after 16 ms
+[10:49:26] Server started http://localhost:8999
+[10:49:26] LiveReload started on port 35729
+[10:49:28] 
+/home/droid/onGit/ReactJS-Sample-Apps/courses-app/src/app.js
+  1:1  error  Read-only global '$' should not be modified       no-global-assign
+  1:5  error  Read-only global 'jQuery' should not be modified  no-global-assign
+
+✖ 2 problems (2 errors, 0 warnings)
+
+[10:49:28] Finished 'lint' after 2.27 s
+[10:49:28] Starting 'default'...
+[10:49:28] Finished 'default' after 2.5 μs
+[10:49:28] Opening http://localhost:8999/ using the default OS app
+```
+
+Running *gulp* launches the browser as shown below, but notice the warnings
+
+![](_misc/Browser%20Snapshot%20-%20Including%20bootstrap.png)
+
+**Resolving warnings**
+
+Specify the global variables used in the .js files
+
+Refer to http://eslint.org/docs/user-guide/configuring#specifying-globals
+
+
+```json
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jquery": true
+  },
+  "rules": {
+    "quotes": 0,
+    "no-trailing-spaces": 0,
+    "eol-last": 0,
+    "no-unused-vars": 0,
+    "no-underscore-dangle": 0,
+    "no-alert": 0,
+    "no-lone-blocks": 0
+  },
+  "globals": {          -------
+    "$": true,
+    "jQuery": true
+  }
+}
+```
+
+Run *gulp* again and notice that there are no warnings
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[11:26:40] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[11:26:40] Starting 'html'...
+[11:26:40] Finished 'html' after 25 ms
+[11:26:40] Starting 'js'...
+[11:26:40] Finished 'js' after 23 ms
+[11:26:40] Starting 'css'...
+[11:26:40] Finished 'css' after 6.46 ms
+[11:26:40] Starting 'lint'...
+[11:26:40] Starting 'connect'...
+[11:26:40] Finished 'connect' after 13 ms
+[11:26:40] Starting 'open'...
+[11:26:40] Finished 'open' after 1.24 ms
+[11:26:40] Starting 'watch'...
+[11:26:40] Finished 'watch' after 16 ms
+[11:26:40] Server started http://localhost:8999
+[11:26:40] LiveReload started on port 35729
+[11:26:40] Finished 'lint' after 506 ms
+[11:26:40] Starting 'default'...
+[11:26:40] Finished 'default' after 2.63 μs
+[11:26:40] Opening http://localhost:8999/ using the default OS app
+```
