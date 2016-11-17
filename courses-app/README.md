@@ -1859,6 +1859,12 @@ gulp.task('open', ['connect'], function() {
 gulp.task('default', ['html', 'js', 'lint', 'open', 'watch']);    <-------- 7
 ```
 
+4] Specify the path to the ESLint configuration file
+
+https://www.npmjs.com/package/gulp-eslint#eslintconfigfilepath
+
+http://eslint.org/docs/user-guide/configuring
+
 *eslint.config.json*
 
 ```json
