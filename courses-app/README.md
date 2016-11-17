@@ -1410,7 +1410,7 @@ function greet() {
 module.exports = App;
 ```
 
-**Import Dependencies**
+**Creating a gulp task to handle JavaScript files**
 
 *gulpfile.js*
 
@@ -1497,6 +1497,25 @@ gulp.task('default', ['html', 'js', 'open', 'watch']);  <-------- 12
 
 12] Add the "js" task to the set of "default" tasks, so it is run when the command *gulp* is run on the command line
 
+**Including the script**
+
+As the .js files would be bundled to "scripts/bundle.js", include that in the .html file
+
+*src/index.html*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Courses App</title>
+  </head>
+  <body>
+    <h1>Welcome to Courses App!</h1>
+    <script src="scripts/bundle.js"></script>         ------
+  </body>
+</html>
+```
+
 **Run Gulp**
 
 ```sh
@@ -1562,3 +1581,370 @@ On refreshing "scripts/bundle.js" is displayed in the browser along with other "
 
 ![](_misc/Refresh%20Browser%20Screenshot.png)
 
+**Configuring auto-reload**
+
+Make changes to the javascript file
+
+*src/app.js*
+
+```javascript
+var App = greet();
+
+function greet() {
+  console.log('Hello, World!');     <-----
+}
+
+module.exports = App;
+```
+
+These changes will not be reflected in the browser automatically. A manual refresh is necessary to see the updated console message in the browser.
+
+
+```javascript
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    js: './src/**/*.js',
+    dist: './dist',
+    appJs: './src/app.js'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('js', function() {
+  browserify(config.paths.appJs)
+      .transform(reactify)
+      .bundle()
+      .on('error', console.error.bind(console))
+      .pipe(vinylSourceStream('bundle.js'))
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))
+      .pipe(gulpConnect.reload());                    <--------- 1
+});
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js']);
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'js', 'open', 'watch']);
+```
+
+1] Configure autoreload
+
+Now any changes done to "src/app.js" will immediately reflect in the browser.
+
+### Configuring Lint
+
+**Install dependencies**
+
+*gulp-eslint* (https://www.npmjs.com/package/gulp-eslint) to lint JS and JSX files
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install gulp-eslint --save
+courses-app@1.0.0 /home/droid/onGit/ReactJS-Sample-Apps/courses-app
+└─┬ gulp-eslint@3.0.1 
+  ├─┬ bufferstreams@1.1.1 
+  │ └─┬ readable-stream@2.2.2 
+  │   └── isarray@1.0.0 
+  └─┬ eslint@3.10.2 
+    ├─┬ babel-code-frame@6.16.0 
+    │ └── js-tokens@2.0.0 
+    ├─┬ doctrine@1.5.0 
+    │ └── isarray@1.0.0 
+    ├─┬ escope@3.6.0 
+    │ ├─┬ es6-map@0.1.4 
+    │ │ ├── d@0.1.1 
+    │ │ ├── es5-ext@0.10.12 
+    │ │ ├── es6-iterator@2.0.0 
+    │ │ ├── es6-set@0.1.4 
+    │ │ ├── es6-symbol@3.1.0 
+    │ │ └── event-emitter@0.3.4 
+    │ ├── es6-weak-map@2.0.1 
+    │ └─┬ esrecurse@4.1.0 
+    │   ├── estraverse@4.1.1 
+    │   └── object-assign@4.1.0 
+    ├─┬ espree@3.3.2 
+    │ ├── acorn@4.0.3 
+    │ └─┬ acorn-jsx@3.0.1 
+    │   └── acorn@3.3.0 
+    ├── estraverse@4.2.0 
+    ├── esutils@2.0.2 
+    ├─┬ file-entry-cache@2.0.0 
+    │ ├─┬ flat-cache@1.2.1 
+    │ │ ├── circular-json@0.3.1 
+    │ │ ├─┬ del@2.2.2 
+    │ │ │ ├─┬ globby@5.0.0 
+    │ │ │ │ ├── array-union@1.0.2 
+    │ │ │ │ ├── arrify@1.0.1 
+    │ │ │ │ ├─┬ glob@7.1.1 
+    │ │ │ │ │ └── minimatch@3.0.3 
+    │ │ │ │ └── object-assign@4.1.0 
+    │ │ │ ├── is-path-cwd@1.0.0 
+    │ │ │ ├─┬ is-path-in-cwd@1.0.0 
+    │ │ │ │ └── is-path-inside@1.0.0 
+    │ │ │ ├── object-assign@4.1.0 
+    │ │ │ └─┬ rimraf@2.5.4 
+    │ │ │   └─┬ glob@7.1.1 
+    │ │ │     └── minimatch@3.0.3 
+    │ │ └── write@0.2.1 
+    │ └── object-assign@4.1.0 
+    ├─┬ glob@7.1.1 
+    │ ├── fs.realpath@1.0.0 
+    │ └── minimatch@3.0.3 
+    ├── globals@9.13.0 
+    ├── ignore@3.2.0 
+    ├── imurmurhash@0.1.4 
+    ├─┬ inquirer@0.12.0 
+    │ ├── ansi-escapes@1.4.0 
+    │ ├─┬ cli-cursor@1.0.2 
+    │ │ └─┬ restore-cursor@1.0.1 
+    │ │   ├── exit-hook@1.1.1 
+    │ │   └── onetime@1.1.0 
+    │ ├── cli-width@2.1.0 
+    │ ├─┬ figures@1.7.0 
+    │ │ └── object-assign@4.1.0 
+    │ ├── lodash@4.17.2 
+    │ ├─┬ readline2@1.0.1 
+    │ │ ├── code-point-at@1.1.0 
+    │ │ ├── is-fullwidth-code-point@1.0.0 
+    │ │ └── mute-stream@0.0.5 
+    │ ├── run-async@0.1.0 
+    │ ├── rx-lite@3.1.2 
+    │ └── string-width@1.0.2 
+    ├─┬ is-my-json-valid@2.15.0 
+    │ ├── generate-function@2.0.0 
+    │ ├─┬ generate-object-property@1.2.0 
+    │ │ └── is-property@1.0.2 
+    │ └── jsonpointer@4.0.0 
+    ├─┬ is-resolvable@1.0.0 
+    │ └── tryit@1.0.3 
+    ├─┬ js-yaml@3.7.0 
+    │ ├─┬ argparse@1.0.9 
+    │ │ └── sprintf-js@1.0.3 
+    │ └── esprima@2.7.3 
+    ├── json-stable-stringify@1.0.1 
+    ├─┬ levn@0.3.0 
+    │ ├── prelude-ls@1.1.2 
+    │ └── type-check@0.3.2 
+    ├── lodash@4.17.2 
+    ├── natural-compare@1.4.0 
+    ├─┬ optionator@0.8.2 
+    │ ├── deep-is@0.1.3 
+    │ ├── fast-levenshtein@2.0.5 
+    │ └── wordwrap@1.0.0 
+    ├── path-is-inside@1.0.2 
+    ├── pluralize@1.2.1 
+    ├── progress@1.1.8 
+    ├─┬ require-uncached@1.0.3 
+    │ ├─┬ caller-path@0.1.0 
+    │ │ └── callsites@0.2.0 
+    │ └── resolve-from@1.0.1 
+    ├─┬ shelljs@0.7.5 
+    │ └─┬ glob@7.1.1 
+    │   └── minimatch@3.0.3 
+    ├── strip-bom@3.0.0 
+    ├── strip-json-comments@1.0.4 
+    ├─┬ table@3.8.3 
+    │ ├─┬ ajv@4.9.0 
+    │ │ ├── co@4.6.0 
+    │ │ └── json-stable-stringify@1.0.1 
+    │ ├── ajv-keywords@1.1.1 
+    │ ├── lodash@4.17.2 
+    │ ├── slice-ansi@0.0.4 
+    │ └─┬ string-width@2.0.0 
+    │   └── is-fullwidth-code-point@2.0.0 
+    ├── text-table@0.2.0 
+    └── user-home@2.0.0 
+
+npm WARN courses-app@1.0.0 No repository field.
+```
+
+*gulpfile.js*
+
+```javascript
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
+var gulpEslint = require('gulp-eslint');                  <-------- 1
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    js: './src/**/*.js',
+    dist: './dist',
+    appJs: './src/app.js'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('js', function() {
+  browserify(config.paths.appJs)
+      .transform(reactify)
+      .bundle()
+      .on('error', console.error.bind(console))
+      .pipe(vinylSourceStream('bundle.js'))   
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('lint', function() {                              <-------- 2
+  return gulp.src(config.paths.js)                          <-------- 3
+      .pipe(gulpEslint('eslint.config.json'))               <-------- 4
+      .pipe(gulpEslint.format());                           <-------- 5
+})
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js', 'lint']);              <-------- 6
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'js', 'lint', 'open', 'watch']);    <-------- 7
+```
+
+*eslint.config.json*
+
+```json
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jquery": true
+  },
+  "rules": {
+    "quotes": 0,
+    "no-trailing-spaces": 0,
+    "eol-last": 0,
+    "no-unused-vars": 0,
+    "no-underscore-dangle": 0,
+    "no-alert": 0,
+    "no-lone-blocks": 0
+  }
+}
+```
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[21:48:17] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[21:48:17] Starting 'html'...
+[21:48:17] Finished 'html' after 13 ms
+[21:48:17] Starting 'js'...
+[21:48:17] Finished 'js' after 25 ms
+[21:48:17] Starting 'lint'...
+[21:48:17] Starting 'connect'...
+[21:48:17] Finished 'connect' after 14 ms
+[21:48:17] Starting 'open'...
+[21:48:17] Finished 'open' after 1.4 ms
+[21:48:17] Starting 'watch'...
+[21:48:17] Finished 'watch' after 17 ms
+[21:48:17] Server started http://localhost:8999
+[21:48:17] LiveReload started on port 35729
+[21:48:18] 
+/home/droid/onGit/ReactJS-Sample-Apps/courses-app/src/app.js
+  4:3  error  Unexpected console statement  no-console
+
+✖ 1 problem (1 error, 0 warnings)
+
+[21:48:18] Finished 'lint' after 521 ms
+[21:48:18] Starting 'default'...
+[21:48:18] Finished 'default' after 2.3 μs
+[21:48:18] Opening http://localhost:8999/ using the default OS app
+```
+
+Notice that *gulp-eslint* is complaning about the *console.log()* in the following file
+
+*src/app.js*
+
+```javascript
+var App = greet();
+
+function greet() {
+  console.log('Hello, I am the script!');      <----
+}
+
+module.exports = App;
+```
+
+*src/app.js*
+
+```javascript
+var App = greet();
+
+function greet() {      <----
+}
+
+module.exports = App;
+```
+
+After making changes to the "src/app.js" file, the "js" and "lint" gulp tasks are run. The "link" task does not complain anymore. 
+
+```sh
+[21:48:51] Starting 'js'...
+[21:48:51] Finished 'js' after 29 ms
+[21:48:51] Starting 'lint'...
+[21:48:51] Finished 'lint' after 62 ms
+```
