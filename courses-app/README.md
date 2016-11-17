@@ -1668,7 +1668,7 @@ Now any changes done to "src/app.js" will immediately reflect in the browser.
 
 **Install dependencies**
 
-*gulp-eslint* (https://www.npmjs.com/package/gulp-eslint) to lint JS and JSX files
+*gulp-eslint* (https://www.npmjs.com/package/gulp-eslint) to lint JS and JSX files. It is a *gulp* plugin for *ESLint*.
 
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install gulp-eslint --save
@@ -1859,11 +1859,26 @@ gulp.task('open', ['connect'], function() {
 gulp.task('default', ['html', 'js', 'lint', 'open', 'watch']);    <-------- 7
 ```
 
-4] Specify the path to the ESLint configuration file
+1] Import the required packages
 
-https://www.npmjs.com/package/gulp-eslint#eslintconfigfilepath
+2] Define a gulp task called "lint" and provide a function that should be run when the "lint" task is requested to run
 
-http://eslint.org/docs/user-guide/configuring
+3] Provide a glob that identifies all .js files to be linted, in this case the glob provided includes all .js files under the "src" directory at any depth.
+
+4] Specify the path to the ESLint configuration file, in this case it is "eslint.config.json" file
+
+This step is referred from http://eslint.org/docs/user-guide/configuring
+
+For other ways of providing configuration files, refer to https://www.npmjs.com/package/gulp-eslint#eslintconfigfilepath
+
+5] Specify that the lint results should be printed to the console 
+
+6] Specify that the "lint" task has to be run after the "js" task everytime any of the .js files under "src/" change
+
+7] Add the "lint" task to be run by default when *gulp* is run from the command line
+
+
+**Eslint configuration file**
 
 *eslint.config.json*
 
@@ -1892,6 +1907,23 @@ http://eslint.org/docs/user-guide/configuring
   }
 }
 ```
+
+The *parserOptions* can be used to specify the JavaScript language options to be supported
+
+Documentation for *parserOptions* property http://eslint.org/docs/user-guide/configuring#specifying-parser-options
+
+The *env* property can be used to define the predefined global variables of an environment
+
+Documentation for *env* property http://eslint.org/docs/user-guide/configuring#specifying-environments
+
+The *rules* property can be used to configure rules that the project uses.
+
+Documentation on configuring *rules* property http://eslint.org/docs/user-guide/configuring#configuring-rules
+
+All the rules supported by ESLint can be found at http://eslint.org/docs/rules/
+
+
+**Run gulp**
 
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
@@ -1954,3 +1986,32 @@ After making changes to the "src/app.js" file, the "js" and "lint" gulp tasks ar
 [21:48:51] Starting 'lint'...
 [21:48:51] Finished 'lint' after 62 ms
 ```
+
+### Configuring Styling
+
+**Install dependencies**
+
+*bootstrap* https://www.npmjs.com/package/bootstrap
+
+*jquery* https://www.npmjs.com/package/jquery
+
+*gulp-concat* https://www.npmjs.com/package/gulp-concat
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install bootstrap jquery gulp-concat --save
+courses-app@1.0.0 /home/droid/onGit/ReactJS-Sample-Apps/courses-app
+├── bootstrap@3.3.7 
+├─┬ gulp-concat@2.6.1 
+│ ├── concat-with-sourcemaps@1.0.4 
+│ └─┬ vinyl@2.0.0 
+│   ├── clone-buffer@1.0.0 
+│   ├── clone-stats@1.0.0 
+│   ├── cloneable-readable@0.5.0 
+│   ├── is-stream@1.1.0 
+│   ├── remove-trailing-separator@1.0.1 
+│   └── replace-ext@1.0.0 
+└── jquery@3.1.1 
+
+npm WARN courses-app@1.0.0 No repository field.
+```
+
