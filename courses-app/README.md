@@ -1880,6 +1880,10 @@ For other ways of providing configuration files, refer to https://www.npmjs.com/
 
 **Eslint configuration file**
 
+Create the following file 
+
+![](_misc/EsLint%20configuration%20file.png)
+
 *eslint.config.json*
 
 ```json
@@ -2123,6 +2127,24 @@ gulp.task('open', ['connect'], function() {
 gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);   <------ 7
 ```
 
+1] Import required packages
+
+2] Add a property to refer to .css files, which in this case refers to bootstrap related .css files
+
+3] Define a *gulp* task called "css" and a function that runs when the "css" task is requested to run
+
+4] Specify the property to refer to the .css files, which in this case are bootstrap related .css files
+
+5] Pipe all .css files to the *gulp-concat* instance to concatenate all of them into a bundle named "bundle.css"
+
+6] Pipe the generated "bundle.css" to *gulp.dest()* and specify the location where the bundled css has to be placed
+
+7] Include the "css" task to run on *gulp* command by default, so that when the *gulp* command is run steps 4-6 are performed to generate a bundled css
+
+**Including the bundled css**
+
+Make the following changes to the html file
+
 *src/index.html*
 
 ```html
@@ -2136,10 +2158,16 @@ gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);   <------ 
     <div class="jumbotron">                             ----- 2
       <h1>Welcome to Courses App!</h1>
     </div>
-    <script src="scripts/bundle.js"></script>
+    <script src="scripts/bundle.js"></script>           ------ Remark
   </body>
 </html>
 ```
+
+1] Include the bundled css that would be generated when the *gulp* command is run
+
+2] Use bootstrap for styling
+
+Remark] Note that bootstrap requires *jquery* to be available globally, so instead of including *jquery* separately in the .html file, bundle it with the bundled JavaScript file "bundle.js", as shown below
 
 *src/app.js*
 
@@ -2153,6 +2181,8 @@ function greet() {
 
 module.exports = App;
 ```
+
+1] Import *jquery* into the script, so that *jquery* library would be part of *app.js* that gets bundled into "bundle.js" as defined in the "js" *gulp* task.
 
 **Run Gulp**
 
@@ -2187,9 +2217,21 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [10:49:28] Opening http://localhost:8999/ using the default OS app
 ```
 
-Running *gulp* launches the browser as shown below, but notice the warnings
+Running *gulp*, performs tasks which includes the following
+
+-> Runs the "js" task which processes "src/app.js" and includes *jquery* in it and bundles everything into "bundle.js"
+
+![](_misc/bundlejs%20including%20jquery.png)
+
+-> Runs the "cs" task which bundles the .css files, which are *bootstrap*'s .css files into "bundle.css"
+
+![](_misc/bundled%20css%20file.png)
+
+-> Runs the "open" task which launches the browser opening "src/index.html", which refers to "bundle.js" and "bundle.css"
 
 ![](_misc/Browser%20Snapshot%20-%20Including%20bootstrap.png)
+
+Also notice the warnings in the command line above.
 
 **Resolving warnings**
 
@@ -2253,3 +2295,5 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [11:26:40] Finished 'default' after 2.63 μs
 [11:26:40] Opening http://localhost:8999/ using the default OS app
 ```
+
+
