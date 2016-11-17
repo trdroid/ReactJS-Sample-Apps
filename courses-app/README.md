@@ -1523,9 +1523,11 @@ Running *gulp* launches the browser and the log from the script "src/app.js" is 
 
 ![](_misc/Browser%20screenshot%20-%20Console%20message.png)
 
+Viewing the sources tab displays the following
+
 ![](_misc/Browser%20Screenshot%20-%20with%20bundlejs.png)
 
-The generated "dist/scripts/bundle.js" file
+The generated "dist/scripts/bundle.js" file after the "js" task is run
 
 ![](_misc/bundlejs%20file%20generated.png)
 
@@ -1544,11 +1546,19 @@ module.exports = App;
 },{}]},{},[1]);
 ```
 
+Viewing the source in the browser
+
 ![](_misc/Browser%20Screenshot%20-%20View%20page%20source.png)
 
 ![](_misc/Viewing%20Page%20Source.png)
 
 ![](_misc/Page%20source%20in%20browser.png)
+
+On refreshing "scripts/bundle.js" is displayed in the browser along with other "extension" entries.
+
+~~ Why wasn't "scripts/bundle.js" displayed before the refresh?
+
+~~ What are the "extension" entries?
 
 ![](_misc/Refresh%20Browser%20Screenshot.png)
 
