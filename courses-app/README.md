@@ -2223,6 +2223,10 @@ Running *gulp*, performs tasks which includes the following
 
 ![](_misc/bundlejs%20including%20jquery.png)
 
+Notice the "src/app.js" script in "bundle.js"
+
+![](_misc/appjs%20script%20in%20bundlejs.png)
+
 -> Runs the "cs" task which bundles the .css files, which are *bootstrap*'s .css files into "bundle.css"
 
 ![](_misc/bundled%20css%20file.png)
