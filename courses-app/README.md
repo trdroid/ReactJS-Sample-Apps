@@ -1519,11 +1519,36 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [17:37:52] Opening http://localhost:8999/ using the default OS app
 ```
 
-Running *gulp* launches the browser
+Running *gulp* launches the browser and the log from the script "src/app.js" is displayed in the console.
 
-![](_misc/Browser%20screenshot%20after%20including%20script.png)
+![](_misc/Browser%20screenshot%20-%20Console%20message.png)
+
+![](_misc/Browser%20Screenshot%20-%20with%20bundlejs.png)
 
 The generated "dist/scripts/bundle.js" file
 
 ![](_misc/bundlejs%20file%20generated.png)
+
+*dist/scripts/bundle.js*
+
+```javascript
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var App = greet();
+
+function greet() {
+  console.log('Hello, I am the script!');
+}
+
+module.exports = App;
+
+},{}]},{},[1]);
+```
+
+![](_misc/Browser%20Screenshot%20-%20View%20page%20source.png)
+
+![](_misc/Viewing%20Page%20Source.png)
+
+![](_misc/Page%20source%20in%20browser.png)
+
+![](_misc/Refresh%20Browser%20Screenshot.png)
 
