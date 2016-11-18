@@ -1,7 +1,7 @@
-var App = greet();
+$ = jQuery = require('jquery');
 
-function greet() {
-  console.log('Hello, I am the script!');
-}
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Index = require('./components/index');
 
-module.exports = App;
+ReactDOM.render(<Index />, document.getElementById('app'));

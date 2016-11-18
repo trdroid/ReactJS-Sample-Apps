@@ -6,6 +6,8 @@ var gulpOpen = require('gulp-open');
 var browserify = require('browserify');
 var reactify = require('reactify');
 var vinylSourceStream = require('vinyl-source-stream');
+var gulpEslint = require('gulp-eslint');
+var gulpConcat = require('gulp-concat');
 
 var config = {
   dev: {
@@ -15,6 +17,10 @@ var config = {
   paths: {
     html: './src/*.html',
     js: './src/**/*.js',
+    css: [
+      'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+      'node_modules/bootstrap/dist/css/bootstrap.min.css'
+    ],
     dist: './dist',
     appJs: './src/app.js'
   }
@@ -41,11 +47,24 @@ gulp.task('js', function() {
       .on('error', console.error.bind(console))
       .pipe(vinylSourceStream('bundle.js'))
       .pipe(gulp.dest(config.paths.dist + '/scripts'))
+      .pipe(gulpConnect.reload());
 });
+
+gulp.task('css', function() {
+  gulp.src(config.paths.css)
+      .pipe(gulpConcat('bundle.css'))
+      .pipe(gulp.dest(config.paths.dist + '/css'));
+})
+
+gulp.task('lint', function() {
+  return gulp.src(config.paths.js)
+      .pipe(gulpEslint('eslint.config.json'))
+      .pipe(gulpEslint.format());
+})
 
 gulp.task('watch', function() {
   gulp.watch(config.paths.html, ['html']);
-  gulp.watch(config.paths.js, ['js']);
+  gulp.watch(config.paths.js, ['js', 'lint']);
 });
 
 gulp.task('open', ['connect'], function() {
@@ -53,4 +72,4 @@ gulp.task('open', ['connect'], function() {
       .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
 });
 
-gulp.task('default', ['html', 'js', 'open', 'watch']);
+gulp.task('default', ['html', 'js', 'css', 'lint', 'open', 'watch']);
