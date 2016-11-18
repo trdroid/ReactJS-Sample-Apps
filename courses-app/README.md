@@ -1891,8 +1891,7 @@ Create the following file
   "extends": "eslint:recommended",
   "parserOptions": {
     "ecmaFeatures": {
-      "jsx": true,
-      "modules": true
+      "jsx": true
     }
   },
   "env": {
@@ -1912,7 +1911,7 @@ Create the following file
 }
 ```
 
-The *parserOptions* can be used to specify the JavaScript language options to be supported
+The *parserOptions* can be used to specify the JavaScript language options to be supported. Setting "jsx" to true implies that any *jsx* used in the project will also be linted.
 
 Documentation for *parserOptions* property http://eslint.org/docs/user-guide/configuring#specifying-parser-options
 
@@ -2300,4 +2299,200 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [11:26:40] Opening http://localhost:8999/ using the default OS app
 ```
 
+### Creating a React Component
+
+**Install Dependencies**
+
+*react* (https://www.npmjs.com/package/react)
+
+*react-dom* (https://www.npmjs.com/package/react-dom)
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ npm install react react-dom --save
+courses-app@1.0.0 /home/droid/onGit/ReactJS-Sample-Apps/courses-app
+├─┬ react@15.4.0 
+│ ├─┬ fbjs@0.8.6 
+│ │ ├── core-js@1.2.7 
+│ │ ├─┬ isomorphic-fetch@2.2.1 
+│ │ │ ├─┬ node-fetch@1.6.3 
+│ │ │ │ └─┬ encoding@0.1.12 
+│ │ │ │   └── iconv-lite@0.4.13 
+│ │ │ └── whatwg-fetch@2.0.1 
+│ │ ├── object-assign@4.1.0 
+│ │ ├─┬ promise@7.1.1 
+│ │ │ └── asap@2.0.5 
+│ │ └── ua-parser-js@0.7.12 
+│ ├── loose-envify@1.3.0 
+│ └── object-assign@4.1.0 
+└─┬ react-dom@15.4.0 
+  └── object-assign@4.1.0 
+
+npm WARN courses-app@1.0.0 No repository field.
+```
+
+*package.json*
+
+```json
+{
+  "name": "courses-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "browserify": "^13.1.1",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-eslint": "^3.0.1",
+    "gulp-open": "^2.0.0",
+    "jquery": "^3.1.1",
+    "react": "^15.4.0",
+    "react-dom": "^15.4.0",
+    "reactify": "^1.1.1",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
+```
+
+**Define a React component**
+
+Create a directory "src/components" to hold the source code for React components. 
+
+Create an "Index" React component. 
+
+*src/components/index.js*
+
+```javascript
+"use strict";
+
+var React = require('react');               <------- 1
+
+var Index = React.createClass({             <------- 2
+  render: function() {                      <------- 3
+    return (                                <------- 4
+      <div className="jumbotron">           <------- 5
+        <h1>Welcome to Courses App!</h1>    
+      </div>
+    );
+  }
+});
+
+module.exports = Index;                     <------- 6
+```
+
+![](_misc/first%20component%20snapshot.png)
+
+*src/app.js*
+
+```js
+$ = jQuery = require('jquery');
+
+var ReactDOM = require('react-dom');                              <------- 1
+var Index = require('./components/index');                        <------- 2
+
+ReactDOM.render(<Index />, document.getElementById('app'));       <------- 3
+```
+
+*index.html*
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Courses App</title>
+    <link rel="stylesheet" href="css/bundle.css"/>
+  </head>
+  <body>
+    <div id="app"></div>                            ------- 1
+    <script src="scripts/bundle.js"></script>
+  </body>
+</html>
+```
+
+1] Declare a DOM element with id "app" where the *React* component would be mounted.
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[17:10:05] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[17:10:05] Starting 'html'...
+[17:10:05] Finished 'html' after 13 ms
+[17:10:05] Starting 'js'...
+[17:10:05] Finished 'js' after 23 ms
+[17:10:05] Starting 'css'...
+[17:10:05] Finished 'css' after 6.44 ms
+[17:10:05] Starting 'lint'...
+[17:10:05] Starting 'connect'...
+[17:10:05] Finished 'connect' after 13 ms
+[17:10:05] Starting 'open'...
+[17:10:05] Finished 'open' after 1.36 ms
+[17:10:05] Starting 'watch'...
+[17:10:05] Finished 'watch' after 17 ms
+[17:10:05] Server started http://localhost:8999
+[17:10:05] LiveReload started on port 35729
+[17:10:05] Opening http://localhost:8999/ using the default OS app
+[17:10:06] Finished 'lint' after 777 ms
+[17:10:06] Starting 'default'...
+[17:10:06] Finished 'default' after 3.12 μs
+```
+
+![](_misc/Browser%20snapshot%20-%20React%20not%20defined%20error.png)
+
+![](_misc/Browser%20snapshot%20-%20React%20not%20defined%20detailed%20error.png)
+
+
+```js
+$ = jQuery = require('jquery');
+
+var React = require('react');                         <----- 1
+var ReactDOM = require('react-dom');      
+var Index = require('./components/index');
+
+ReactDOM.render(<Index />, document.getElementById('app'));
+```
+
+1] Import the *react* package
+
+Notice the console messages after saving this file and the browser snapshot which indicates that there are no errors. 
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[17:10:05] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[17:10:05] Starting 'html'...
+[17:10:05] Finished 'html' after 13 ms
+[17:10:05] Starting 'js'...
+[17:10:05] Finished 'js' after 23 ms
+[17:10:05] Starting 'css'...
+[17:10:05] Finished 'css' after 6.44 ms
+[17:10:05] Starting 'lint'...
+[17:10:05] Starting 'connect'...
+[17:10:05] Finished 'connect' after 13 ms
+[17:10:05] Starting 'open'...
+[17:10:05] Finished 'open' after 1.36 ms
+[17:10:05] Starting 'watch'...
+[17:10:05] Finished 'watch' after 17 ms
+[17:10:05] Server started http://localhost:8999
+[17:10:05] LiveReload started on port 35729
+[17:10:05] Opening http://localhost:8999/ using the default OS app
+[17:10:06] Finished 'lint' after 777 ms
+[17:10:06] Starting 'default'...
+[17:10:06] Finished 'default' after 3.12 μs
+[17:40:55] Starting 'js'...                        <----------
+[17:40:55] Finished 'js' after 19 ms
+[17:40:55] Starting 'lint'...
+[17:40:56] Finished 'lint' after 192 ms
+```
+
+![](_misc/Browser%20Screenshot%20-%20After%20importing%20React.png)
+
+Notice that the "js" task has processed "src/app.js" and bundled it to "dist/bundle.js" i.e. the "js" task, among other things, transformed "src/app.js" using the *reactify* plugin to transpile *jsx* to *JavaScript*, which can be seen in "dist/bundle.js" as shown below
+
+![](_misc/Component%20code%20in%20bundlejs.png)
 
