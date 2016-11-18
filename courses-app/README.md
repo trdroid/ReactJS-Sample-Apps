@@ -2223,6 +2223,10 @@ Running *gulp*, performs tasks which includes the following
 
 ![](_misc/bundlejs%20including%20jquery.png)
 
+Notice the "src/app.js" script in "bundle.js"
+
+![](_misc/appjs%20script%20in%20bundlejs.png)
+
 -> Runs the "cs" task which bundles the .css files, which are *bootstrap*'s .css files into "bundle.css"
 
 ![](_misc/bundled%20css%20file.png)
@@ -2231,7 +2235,7 @@ Running *gulp*, performs tasks which includes the following
 
 ![](_misc/Browser%20Snapshot%20-%20Including%20bootstrap.png)
 
-Also notice the warnings in the command line above.
+Also notice the errors in the command line above that specifies that the rule "no-global-assign" has failed.
 
 **Resolving warnings**
 
@@ -2270,7 +2274,7 @@ Refer to http://eslint.org/docs/user-guide/configuring#specifying-globals
 }
 ```
 
-Run *gulp* again and notice that there are no warnings
+Run *gulp* again and notice that there are no errors
 
 ```sh
 droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
