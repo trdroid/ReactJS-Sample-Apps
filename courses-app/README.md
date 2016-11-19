@@ -2492,7 +2492,165 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 
 ![](_misc/Browser%20Screenshot%20-%20After%20importing%20React.png)
 
-Notice that the "js" task has processed "src/app.js" and bundled it to "dist/bundle.js" i.e. the "js" task, among other things, transformed "src/app.js" using the *reactify* plugin to transpile *jsx* to *JavaScript*, which can be seen in "dist/bundle.js" as shown below
+Notice that the "js" task has processed "src/app.js" and bundled it to "dist/bundle.js" i.e. the "js" task, among other things, has transformed "src/app.js" using the *reactify* plugin to transpile *jsx* to *JavaScript*, which can be seen in "dist/bundle.js" as shown below
 
 ![](_misc/Component%20code%20in%20bundlejs.png)
+
+### Creating another React component
+
+Create another React component to display general details about courses.
+
+Create a directory "src/component/details" to hold the component's source code. 
+
+*src/components/details/details.js*
+
+```js
+"use strict";
+
+var React = require('react');               <------ 1
+
+var Details = React.createClass({           <------ 2
+  render: function() {                      <------ 3
+    return (                                <------ 4
+      <div>
+        <h1>Details</h1>
+        <table>
+          <tr>
+            <th>Course</th>
+            <th>Instructor</th>
+          </tr>
+          <tr>
+          <td>Android</td>
+          <td>Albert Eistein</td>
+          </tr>
+          <tr>
+          <td>AngularJS</td>
+          <td>Isaac Newton</td>
+          </tr>
+        </table>
+      </div>
+    );
+  }
+});
+
+module.exports = Details;                   <------ 5
+```
+
+![](_misc/Details%20component.png)
+
+*src/app.js*
+
+```js
+$ = jQuery = require('jquery');
+
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Index = require('./components/index');
+var Details = require('./components/details/details');      <------ 1
+
+var App = React.createClass({                               <------ 2
+  render: function() {                                      <------ 3
+    var ChildComponent;                                     <------ 4
+
+    switch(this.props.route) {                              <------ 5
+      case 'details': ChildComponent = Details;             <------ 6
+        break;
+      default: ChildComponent = Index;                      <------ 7
+    }
+
+    return (                                                <------ 8
+      <div>
+        <ChildComponent />
+      </div>
+    );
+  }
+});
+
+function render() {                                         <------ 9
+    var route = window.location.hash.substr(1);             <------ 10
+    ReactDOM.render(<App route={route} />, document.getElementById('app'));     <------ 11
+}
+
+window.addEventListener('hashchange', render);              <------ 12
+render();                                                   <------ 13
+```
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[19:40:07] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[19:40:07] Starting 'html'...
+[19:40:07] Finished 'html' after 13 ms
+[19:40:07] Starting 'js'...
+[19:40:07] Finished 'js' after 27 ms
+[19:40:07] Starting 'css'...
+[19:40:07] Finished 'css' after 6.89 ms
+[19:40:07] Starting 'lint'...
+[19:40:08] Starting 'connect'...
+[19:40:08] Finished 'connect' after 147 ms
+[19:40:08] Starting 'open'...
+[19:40:08] Finished 'open' after 1.27 ms
+[19:40:08] Starting 'watch'...
+[19:40:08] Finished 'watch' after 19 ms
+[19:40:08] Server started http://localhost:8999
+[19:40:08] LiveReload started on port 35729
+[19:40:10] Opening http://localhost:8999/ using the default OS app
+[19:40:10] Finished 'lint' after 2.66 s
+[19:40:10] Starting 'default'...
+[19:40:10] Finished 'default' after 3.25 μs
+```
+
+This launches the browser and displays the following with the "Index" component rendered.
+
+![](_misc/Browser%20snapshot%20-%20No%20route.png)
+
+Changing the url renders the newly created "Details" component. 
+
+![](_misc/Browser%20Screenshot%20-%20Details%20route.png)
+
+Changing the url back to the default url again renders the "Index" component.
+
+
+**Using an IIFE**
+
+*src/app.js*
+
+```js
+$ = jQuery = require('jquery');
+
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Index = require('./components/index');
+var Details = require('./components/details/details');
+
+(function(window) {                               <-------- 1
+  "use strict";                                   <-------- 2
+  var App = React.createClass({
+    render: function() {
+      var ChildComponent;
+
+      switch(this.props.route) {
+        case 'details': ChildComponent = Details;
+          break;
+        default: ChildComponent = Index;
+      }
+
+      return (
+        <div>
+          <ChildComponent />
+        </div>
+      );
+    }
+  });
+
+  function render() {
+      var route = window.location.hash.substr(1);
+      ReactDOM.render(<App route={route} />, document.getElementById('app'));
+  }
+
+  window.addEventListener('hashchange', render);
+  render();
+})(window);                                       <-------- 3
+```
 
