@@ -30657,10 +30657,69 @@ $ = jQuery = require('jquery');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Index = require('./components/index');
+var Details = require('./components/details/details');
 
-ReactDOM.render(React.createElement(Index, null), document.getElementById('app'));
+(function(window) {
+  "use strict";
+  var App = React.createClass({displayName: "App",
+    render: function() {
+      var ChildComponent;
 
-},{"./components/index":181,"jquery":24,"react":179,"react-dom":26}],181:[function(require,module,exports){
+      switch(this.props.route) {
+        case 'details': ChildComponent = Details;
+          break;
+        default: ChildComponent = Index;
+      }
+
+      return (
+        React.createElement("div", null, 
+          React.createElement(ChildComponent, null)
+        )
+      );
+    }
+  });
+
+  function render() {
+      var route = window.location.hash.substr(1);
+      ReactDOM.render(React.createElement(App, {route: route}), document.getElementById('app'));
+  }
+
+  window.addEventListener('hashchange', render);
+  render();
+})(window);
+
+},{"./components/details/details":181,"./components/index":182,"jquery":24,"react":179,"react-dom":26}],181:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+
+var Details = React.createClass({displayName: "Details",
+  render: function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h1", null, "Details"), 
+        React.createElement("table", null, 
+          React.createElement("tr", null, 
+            React.createElement("th", null, "Course"), 
+            React.createElement("th", null, "Instructor")
+          ), 
+          React.createElement("tr", null, 
+          React.createElement("td", null, "Android"), 
+          React.createElement("td", null, "Albert Eistein")
+          ), 
+          React.createElement("tr", null, 
+          React.createElement("td", null, "AngularJS"), 
+          React.createElement("td", null, "Isaac Newton")
+          )
+        )
+      )
+    );
+  }
+});
+
+module.exports = Details;
+
+},{"react":179}],182:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
