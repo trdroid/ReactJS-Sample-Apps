@@ -30703,15 +30703,18 @@ var Details = React.createClass({displayName: "Details",
         React.createElement("table", null, 
           React.createElement("tr", null, 
             React.createElement("th", null, "Course"), 
+            React.createElement("th", null, "Icon"), 
             React.createElement("th", null, "Instructor")
           ), 
           React.createElement("tr", null, 
-          React.createElement("td", null, "Android"), 
-          React.createElement("td", null, "Albert Eistein")
+            React.createElement("td", null, "Android"), 
+            React.createElement("td", null, React.createElement("img", {src: "imgs/android.png"})), 
+            React.createElement("td", null, "Albert Eistein")
           ), 
           React.createElement("tr", null, 
-          React.createElement("td", null, "AngularJS"), 
-          React.createElement("td", null, "Isaac Newton")
+            React.createElement("td", null, "AngularJS"), 
+            React.createElement("td", null, React.createElement("img", {src: "imgs/angularjs.png"})), 
+            React.createElement("td", null, "Isaac Newton")
           )
         )
       )

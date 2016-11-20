@@ -10,15 +10,18 @@ var Details = React.createClass({
         <table>
           <tr>
             <th>Course</th>
+            <th>Icon</th>
             <th>Instructor</th>
           </tr>
           <tr>
-          <td>Android</td>
-          <td>Albert Eistein</td>
+            <td>Android</td>
+            <td><img src="imgs/android.png"/></td>
+            <td>Albert Eistein</td>
           </tr>
           <tr>
-          <td>AngularJS</td>
-          <td>Isaac Newton</td>
+            <td>AngularJS</td>
+            <td><img src="imgs/angularjs.png"/></td>
+            <td>Isaac Newton</td>
           </tr>
         </table>
       </div>
