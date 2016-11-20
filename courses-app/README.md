@@ -2560,19 +2560,19 @@ var App = React.createClass({                               <------ 2
 
     return (                                                <------ 8
       <div>
-        <ChildComponent />
+        <ChildComponent />                                  <------ 9
       </div>
     );
   }
 });
 
-function render() {                                         <------ 9
-    var route = window.location.hash.substr(1);             <------ 10
-    ReactDOM.render(<App route={route} />, document.getElementById('app'));     <------ 11
+function render() {                                         <------ 10
+    var route = window.location.hash.substr(1);             <------ 11
+    ReactDOM.render(<App route={route} />, document.getElementById('app'));     <------ 12
 }
 
-window.addEventListener('hashchange', render);              <------ 12
-render();                                                   <------ 13
+window.addEventListener('hashchange', render);              <------ 13
+render();                                                   <------ 14
 ```
 
 **Run Gulp**
@@ -2653,4 +2653,85 @@ var Details = require('./components/details/details');
   render();
 })(window);                                       <-------- 3
 ```
+
+### Creating a header
+
+Create a directory "src/components/shared".
+
+Create a component called "Header" as shown below
+
+*src/components/shared/header.js*
+
+```js
+"use strict";
+
+var React = require('react');                         <----- 1
+
+var Menu = React.createClass({                        <----- 2
+  render: function() {                                <----- 3
+    return (                                          <----- 4
+      <nav className="navbar navbar-default">
+        <div className="container-fluid">
+          <ul className="nav navbar-nav">
+            <li><a href="/">Home</a></li>             <----- 5
+            <li><a href="#details">Details</a></li>   <----- 6
+          </ul>
+        </div>
+      </nav>
+    );
+  }
+});
+
+module.exports = Menu;                                <----- 7
+```
+
+*src/app.js*
+
+```js
+$ = jQuery = require('jquery');
+
+var React = require('react');
+var ReactDOM = require('react-dom');
+var Index = require('./components/index');
+var Details = require('./components/details/details');
+var Header = require('./components/shared/header');       <------- 1
+
+(function(window) {
+  "use strict";
+  var App = React.createClass({
+    render: function() {
+      var ChildComponent;
+
+      switch(this.props.route) {
+        case 'details': ChildComponent = Details;
+          break;
+        default: ChildComponent = Index;
+      }
+
+      return (
+        <div>
+          <Header />                                     <------- 2
+          <ChildComponent />
+        </div>
+      );
+    }
+  });
+
+  function render() {
+      var route = window.location.hash.substr(1);
+      ReactDOM.render(<App route={route} />, document.getElementById('app'));
+  }
+
+  window.addEventListener('hashchange', render);
+  render();
+})(window);
+```
+
+
+
+
+
+
+
+
 
