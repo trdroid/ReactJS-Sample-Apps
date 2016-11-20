@@ -2965,6 +2965,8 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 [12:11:55] Finished 'default' after 2.6 μs
 ```
 
+![](_misc/Images%20in%20dist.png)
+
 ![](_misc/Browser%20Snapshot%20-%20Icons%20fixed.png)
 
 
