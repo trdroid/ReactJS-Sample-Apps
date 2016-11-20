@@ -2685,6 +2685,8 @@ var Menu = React.createClass({                        <----- 2
 module.exports = Menu;                                <----- 7
 ```
 
+![](_misc/headerjs.png)
+
 *src/app.js*
 
 ```js
@@ -2727,6 +2729,35 @@ var Header = require('./components/shared/header');       <------- 1
 })(window);
 ```
 
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[11:18:25] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[11:18:25] Starting 'html'...
+[11:18:25] Finished 'html' after 12 ms
+[11:18:25] Starting 'js'...
+[11:18:25] Finished 'js' after 23 ms
+[11:18:25] Starting 'css'...
+[11:18:25] Finished 'css' after 6.13 ms
+[11:18:25] Starting 'lint'...
+[11:18:25] Starting 'connect'...
+[11:18:25] Finished 'connect' after 115 ms
+[11:18:25] Starting 'open'...
+[11:18:25] Finished 'open' after 1.24 ms
+[11:18:25] Starting 'watch'...
+[11:18:25] Finished 'watch' after 17 ms
+[11:18:25] Server started http://localhost:8999
+[11:18:25] LiveReload started on port 35729
+[11:18:27] Opening http://localhost:8999/ using the default OS app
+[11:18:27] Finished 'lint' after 2.33 s
+[11:18:27] Starting 'default'...
+[11:18:27] Finished 'default' after 3.72 μs
+```
+
+![](_misc/Browser%20Snapshot%20-%20With%20Header.png)
+
+![](_misc/Browser%20Snapshot%20-%20With%20Header%20-%20Details.png)
 
 
 
