@@ -2760,9 +2760,211 @@ droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
 ![](_misc/Browser%20Snapshot%20-%20With%20Header%20-%20Details.png)
 
 
+### Adding icons
 
+**Adding images**
 
+![](_misc/Images.png)
 
+**Referring images**
 
+*src/components/details/details.js*
+
+```js
+"use strict";
+
+var React = require('react');
+
+var Details = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <h1>Details</h1>
+        <table>
+          <tr>
+            <th>Course</th>
+            <th>Icon</th>                               ----- 1
+            <th>Instructor</th>
+          </tr>
+          <tr>
+            <td>Android</td>
+            <td><img src="imgs/android.png"/></td>      ----- 2
+            <td>Albert Eistein</td>
+          </tr>
+          <tr>
+            <td>AngularJS</td>
+            <td><img src="imgs/angularjs.png"/></td>    ----- 3
+            <td>Isaac Newton</td>
+          </tr>
+        </table>
+      </div>
+    );
+  }
+});
+
+module.exports = Details;
+```
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[11:49:15] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[11:49:15] Starting 'html'...
+[11:49:15] Finished 'html' after 15 ms
+[11:49:15] Starting 'js'...
+[11:49:15] Finished 'js' after 26 ms
+[11:49:15] Starting 'css'...
+[11:49:16] Finished 'css' after 6.48 ms
+[11:49:16] Starting 'lint'...
+[11:49:16] Starting 'connect'...
+[11:49:16] Finished 'connect' after 15 ms
+[11:49:16] Starting 'open'...
+[11:49:16] Finished 'open' after 1.33 ms
+[11:49:16] Starting 'watch'...
+[11:49:16] Finished 'watch' after 19 ms
+[11:49:16] Server started http://localhost:8999
+[11:49:16] LiveReload started on port 35729
+[11:49:16] Opening http://localhost:8999/ using the default OS app
+[11:49:16] Finished 'lint' after 741 ms
+[11:49:16] Starting 'default'...
+[11:49:16] Finished 'default' after 2.74 μs
+```
+
+![](_misc/Browser%20Snapshot%20-%20Icons%20broken.png)
+
+The reason why the links are broken is because the local web server cannot find a "imgs/" directory with respect to the "dist" directory, as remember in the *gulp* task, the server is configured to serve from "dist/" directory
+
+*Snippet from gulpfile.js*
+
+```js
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],      <------
+    port: config.dev.port,
+    livereload: true
+  });
+});
+```
+
+To let the server serve the images, add a *gulp* task to copy the images to the "dist/" directory
+
+*gulpfile.js*
+
+```js
+"use strict";
+
+var gulp = require('gulp');
+var gulpConnect = require('gulp-connect');
+var gulpOpen = require('gulp-open');
+var browserify = require('browserify');
+var reactify = require('reactify');
+var vinylSourceStream = require('vinyl-source-stream');
+var gulpEslint = require('gulp-eslint');
+var gulpConcat = require('gulp-concat');
+
+var config = {
+  dev: {
+    port: 8999,
+    baseUrl: 'http://localhost',
+  },
+  paths: {
+    html: './src/*.html',
+    js: './src/**/*.js',
+    css: [
+      'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+      'node_modules/bootstrap/dist/css/bootstrap.min.css'
+    ],
+    imgs: './src/imgs/*',                                       <-------- 1
+    dist: './dist',
+    appJs: './src/app.js'
+  }
+}
+
+gulp.task('connect', function() {
+  gulpConnect.server({
+    root: [config.paths.dist],
+    port: config.dev.port,
+    livereload: true
+  });
+});
+
+gulp.task('html', function() {
+  gulp.src(config.paths.html)
+      .pipe(gulp.dest(config.paths.dist))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('js', function() {
+  browserify(config.paths.appJs)
+      .transform(reactify)
+      .bundle()
+      .on('error', console.error.bind(console))
+      .pipe(vinylSourceStream('bundle.js'))
+      .pipe(gulp.dest(config.paths.dist + '/scripts'))
+      .pipe(gulpConnect.reload());
+});
+
+gulp.task('css', function() {
+  gulp.src(config.paths.css)
+      .pipe(gulpConcat('bundle.css'))
+      .pipe(gulp.dest(config.paths.dist + '/css'));
+})
+
+gulp.task('images', function() {                                <-------- 2
+  gulp.src(config.paths.imgs)                                   <-------- 3
+      .pipe(gulp.dest(config.paths.dist + '/imgs'))             <-------- 4
+      .pipe(gulpConnect.reload());                              <-------- 5
+});
+
+gulp.task('lint', function() {
+  return gulp.src(config.paths.js)
+      .pipe(gulpEslint('eslint.config.json'))
+      .pipe(gulpEslint.format());
+})
+
+gulp.task('watch', function() {
+  gulp.watch(config.paths.html, ['html']);
+  gulp.watch(config.paths.js, ['js', 'lint']);
+  gulp.watch(config.paths.imgs, ['images']);                    <-------- 6
+});
+
+gulp.task('open', ['connect'], function() {
+  gulp.src('dist/index.html')
+      .pipe(gulpOpen({ uri: config.dev.baseUrl + ':' + config.dev.port + '/'}));
+});
+
+gulp.task('default', ['html', 'js', 'css', 'images', 'lint', 'open', 'watch']);   <-------- 7
+```
+
+**Run Gulp**
+
+```sh
+droid@droidserver:~/onGit/ReactJS-Sample-Apps/courses-app$ gulp
+[12:11:55] Using gulpfile ~/onGit/ReactJS-Sample-Apps/courses-app/gulpfile.js
+[12:11:55] Starting 'html'...
+[12:11:55] Finished 'html' after 13 ms
+[12:11:55] Starting 'js'...
+[12:11:55] Finished 'js' after 24 ms
+[12:11:55] Starting 'css'...
+[12:11:55] Finished 'css' after 6.35 ms
+[12:11:55] Starting 'images'...
+[12:11:55] Finished 'images' after 1.03 ms
+[12:11:55] Starting 'lint'...
+[12:11:55] Starting 'connect'...
+[12:11:55] Finished 'connect' after 13 ms
+[12:11:55] Starting 'open'...
+[12:11:55] Finished 'open' after 1.28 ms
+[12:11:55] Starting 'watch'...
+[12:11:55] Finished 'watch' after 20 ms
+[12:11:55] Server started http://localhost:8999
+[12:11:55] LiveReload started on port 35729
+[12:11:55] Opening http://localhost:8999/ using the default OS app
+[12:11:55] Finished 'lint' after 707 ms
+[12:11:55] Starting 'default'...
+[12:11:55] Finished 'default' after 2.6 μs
+```
+
+![](_misc/Browser%20Snapshot%20-%20Icons%20fixed.png)
 
 
