@@ -30658,6 +30658,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Index = require('./components/index');
 var Details = require('./components/details/details');
+var Header = require('./components/shared/header');
 
 (function(window) {
   "use strict";
@@ -30673,6 +30674,7 @@ var Details = require('./components/details/details');
 
       return (
         React.createElement("div", null, 
+          React.createElement(Header, null), 
           React.createElement(ChildComponent, null)
         )
       );
@@ -30688,7 +30690,7 @@ var Details = require('./components/details/details');
   render();
 })(window);
 
-},{"./components/details/details":181,"./components/index":182,"jquery":24,"react":179,"react-dom":26}],181:[function(require,module,exports){
+},{"./components/details/details":181,"./components/index":182,"./components/shared/header":183,"jquery":24,"react":179,"react-dom":26}],181:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -30735,5 +30737,27 @@ var Index = React.createClass({displayName: "Index",
 });
 
 module.exports = Index;
+
+},{"react":179}],183:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+
+var Menu = React.createClass({displayName: "Menu",
+  render: function() {
+    return (
+      React.createElement("nav", {className: "navbar navbar-default"}, 
+        React.createElement("div", {className: "container-fluid"}, 
+          React.createElement("ul", {className: "nav navbar-nav"}, 
+            React.createElement("li", null, React.createElement("a", {href: "/"}, "Home")), 
+            React.createElement("li", null, React.createElement("a", {href: "#details"}, "Details"))
+          )
+        )
+      )
+    );
+  }
+});
+
+module.exports = Menu;
 
 },{"react":179}]},{},[180]);

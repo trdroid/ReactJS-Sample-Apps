@@ -4,6 +4,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Index = require('./components/index');
 var Details = require('./components/details/details');
+var Header = require('./components/shared/header');
 
 (function(window) {
   "use strict";
@@ -19,6 +20,7 @@ var Details = require('./components/details/details');
 
       return (
         <div>
+          <Header />
           <ChildComponent />
         </div>
       );
